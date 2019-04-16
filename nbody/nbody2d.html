@@ -30,11 +30,11 @@
         var centerX = ctx.canvas.width / 2;
         var centerY = ctx.canvas.height / 2;
         var pixels;
-        var dotCount = 100;
-        var friction = 1.001;
+        var dotCount = 1000;
+        var friction = 1.01;
         var kick = 0;
         var halfKick = kick / 2;
-        var gravity = 0.1;
+        var gravity = 1;
 
         function Point(x, y) {
             this.x = x || 0;
@@ -45,7 +45,7 @@
             this.x = x || Math.floor(Math.random() * ctx.canvas.width);
             this.y = y || Math.floor(Math.random() * ctx.canvas.height);
             this.vector = new Point((Math.random() * kick) - halfKick, (Math.random() * kick) - halfKick);
-            this.mass = m || 0.1;
+            this.mass = m || Math.random();
         }
 
         Dot.prototype.Bounce = function () {
@@ -132,39 +132,42 @@
         }
 
         function DrawGrid(dots) {
-            for (var i = dotCount; i > 0; i--) {
+            for (var i = dots.length-1; i > 0; i--) {
                 var imo = i - 1;
                 for (var j = imo; j > 0; j--) {
                     var dx = dots[j].x - dots[i].x;
                     var dy = dots[j].y - dots[i].y;
                     var distance = Math.sqrt((dx * dx) + (dy * dy));
                     if (distance > 3) {
-                        var mag = 1 / (distance * distance * distance);
+                        //var mag = 1 / (distance * distance * distance);
+                        var mag = gravity * ((dots[i].mass * dots[j].mass) / (distance * distance* distance));
 
                         dots[i].vector.x += dx * dots[j].mass * mag;
                         dots[i].vector.y += dy * dots[j].mass * mag;
 
                         dots[j].vector.x -= dx * dots[i].mass * mag;
                         dots[j].vector.y -= dy * dots[i].mass * mag;
-                    } else {
-                        var mag = 1 / (distance * distance * distance);
+                    // } else {
+                    //     var mag = 1 / (distance * distance * distance);
 
-                        dots[i].vector.x += dx * dots[j].mass * mag;
-                        dots[i].vector.y += dy * dots[j].mass * mag;
+                    //     dots[i].vector.x += dx * dots[j].mass * mag;
+                    //     dots[i].vector.y += dy * dots[j].mass * mag;
 
-                        dots[j].vector.x -= dx * dots[i].mass * mag;
-                        dots[j].vector.y -= dy * dots[i].mass * mag;
+                    //     dots[j].vector.x -= dx * dots[i].mass * mag;
+                    //     dots[j].vector.y -= dy * dots[i].mass * mag;
 
                         
-                        dots[i].mass += dots[j].mass;
+                    //     dots[j].mass += dots[i].mass;
 
-                        dots[j] = new Dot();
-
+                    //     //dots[i] = new Dot();
+                    //     dots.slice(i,1);
+                    //     i--;
+                    //     break;
                     }
                 }
             }
 
-            for (var i = dotCount; i > 0; i--) {
+            for (var i = dots.length-1; i > 0; i--) {
                 dots[i].DoMovement();
             }
 
@@ -175,7 +178,7 @@
             var dot;
 
             // draw
-            for (var i = dotCount; i > 0; i--) {
+            for (var i = dots.length-1; i > 0; i--) {
                 dot = dots[i];
                 var x = Math.floor(dot.x);
                 var y = Math.floor(dot.y);
@@ -184,7 +187,7 @@
                     pixels.data[index] = 255 - (dot.mass * 20);
                     pixels.data[index + 1] = 255;
                     pixels.data[index + 2] = 255 - (dot.mass * 20);
-                    pixels.data[index + 3] = 255;
+                    pixels.data[index + 3] = 127;
                 }
             }
 
